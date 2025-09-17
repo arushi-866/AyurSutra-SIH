@@ -2,7 +2,7 @@
 
 A comprehensive web application for managing Panchakarma treatments, patient scheduling, and therapy tracking with modern UI/UX and automated features.
 
-## 🌟 Features
+##  Features
 
 ### Core Functionality
 - **Automated Therapy Scheduling**: Intelligent scheduling system with conflict detection and auto-rescheduling
@@ -19,7 +19,7 @@ A comprehensive web application for managing Panchakarma treatments, patient sch
 - **Progress Milestones**: Achievement tracking and patient motivation
 - **Therapy Effectiveness Analytics**: Data-driven insights into treatment outcomes
 
-## 🚀 Technology Stack
+## Technology Stack
 
 ### Frontend
 - **React 18** with TypeScript
@@ -34,7 +34,7 @@ A comprehensive web application for managing Panchakarma treatments, patient sch
 - **CORS** enabled for cross-origin requests
 - **RESTful API** design
 
-## 📦 Installation & Setup
+## Installation & Setup
 
 ### Prerequisites
 - Node.js (v16 or higher)
@@ -44,7 +44,7 @@ A comprehensive web application for managing Panchakarma treatments, patient sch
 
 1. **Clone the repository**
    ```bash
-   git clone <repository-url>
+   git clone <https://github.com/arushi-866/AyurSutra-SIH>
    cd ayursutra
    ```
 
@@ -68,7 +68,7 @@ A comprehensive web application for managing Panchakarma treatments, patient sch
 5. **Open your browser**
    Navigate to `http://localhost:5173` to view the application
 
-## 🏗️ Project Structure
+##  Project Structure
 
 ```
 ayursutra/
@@ -90,7 +90,7 @@ ayursutra/
 └── README.md                      # Project documentation
 ```
 
-## 🎯 Key Components
+## Key Components
 
 ### Dashboard
 - Real-time therapy tracking with live indicators
@@ -120,7 +120,7 @@ ayursutra/
 - **Effectiveness Tracking**: Therapy effectiveness metrics
 - **Analytics Dashboard**: Advanced analytics and insights
 
-## 🔧 API Endpoints
+##  API Endpoints
 
 ### Core Endpoints
 - `GET /api/therapies` - Get all therapies
@@ -139,7 +139,7 @@ ayursutra/
 - `GET /api/practitioners/:id/performance` - Get practitioner performance
 - `GET /api/therapies/:id/effectiveness` - Get therapy effectiveness
 
-## 🎨 UI/UX Features
+##  UI/UX Features
 
 ### Design System
 - **Modern Interface**: Clean, professional design with Ayurvedic color scheme
@@ -153,7 +153,7 @@ ayursutra/
 - **Interactive Elements**: Hover effects, animations, and transitions
 - **Loading States**: Proper loading indicators and error handling
 
-## 📊 Data Visualization
+##  Data Visualization
 
 ### Charts & Graphs
 - **Progress Tracking**: Visual progress bars and completion indicators
@@ -162,14 +162,14 @@ ayursutra/
 - **Therapy Effectiveness**: Charts showing treatment outcomes
 - **Trend Analysis**: Time-based analysis of key metrics
 
-## 🔒 Security Features
+## Security Features
 
 - **CORS Configuration**: Proper cross-origin resource sharing setup
 - **Input Validation**: Client and server-side input validation
 - **Error Handling**: Comprehensive error handling and logging
 - **Data Sanitization**: Protection against XSS and injection attacks
 
-## 🚀 Future Enhancements
+## Future Enhancements
 
 ### Planned Features
 - **User Authentication**: Login system with role-based access
@@ -186,7 +186,7 @@ ayursutra/
 - **CI/CD**: Automated deployment pipeline
 - **Monitoring**: Application performance monitoring
 
-## 🤝 Contributing
+## Contributing
 
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
@@ -194,25 +194,9 @@ ayursutra/
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
-## 📝 License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
 
-## 👥 Team
-
-- **Frontend Development**: React, TypeScript, Tailwind CSS
-- **Backend Development**: Node.js, Express.js
-- **UI/UX Design**: Modern, responsive design with Ayurvedic theme
-- **Data Visualization**: Recharts for interactive charts
-
-## 📞 Support
-
-For support and questions, please contact:
-- Email: support@ayursutra.com
-- Documentation: [Project Wiki](link-to-wiki)
-- Issues: [GitHub Issues](link-to-issues)
-
-## 🙏 Acknowledgments
+##  Acknowledgments
 
 - Ayurvedic practitioners for domain expertise
 - Open source community for excellent libraries

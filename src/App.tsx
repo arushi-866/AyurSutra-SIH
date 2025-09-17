@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Layout from './components/Layout';
+import Landing from './components/Landing';
 import Dashboard from './components/Dashboard';
 import Schedule from './components/Schedule';
 import Notifications from './components/Notifications';
@@ -10,7 +11,8 @@ function App() {
     <Router>
       <Layout>
         <Routes>
-          <Route path="/" element={<Dashboard />} />
+          <Route path="/" element={<Landing />} />
+          <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/schedule" element={<Schedule />} />
           <Route path="/notifications" element={<Notifications />} />
           <Route path="/feedback" element={<Feedback />} />

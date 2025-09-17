@@ -34,7 +34,8 @@ export default function Layout({ children }: LayoutProps) {
   }, []);
 
   const navigation = [
-    { name: 'Dashboard', href: '/', icon: Home },
+    { name: 'Home', href: '/', icon: Home },
+    { name: 'Dashboard', href: '/dashboard', icon: Home },
     { name: 'Schedule', href: '/schedule', icon: Calendar },
     { name: 'Notifications', href: '/notifications', icon: Bell, badge: unreadNotifications },
     { name: 'Feedback', href: '/feedback', icon: MessageSquare },

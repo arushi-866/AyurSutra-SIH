@@ -9,9 +9,10 @@ export default function Schedule() {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [showBookingForm, setShowBookingForm] = useState(false);
   const [showAutoSchedule, setShowAutoSchedule] = useState(false);
-  const [, setSelectedTherapy] = useState<Therapy | null>(null);
+  // Removed unused setSelectedTherapy
   const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState<'grid' | 'calendar' | 'timeline'>('grid');
+  const [calendarDate, setCalendarDate] = useState(new Date());
   const [filterStatus, setFilterStatus] = useState<'all' | 'scheduled' | 'in-progress' | 'completed'>('all');
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -95,11 +96,15 @@ export default function Schedule() {
       // Simulate auto-scheduling logic
       const sessions = [];
       const startDate = new Date(autoScheduleData.startDate);
-      
+
+      let dayIncrement = 1;
+      if (autoScheduleData.frequency === 'weekly') dayIncrement = 7;
+      if (autoScheduleData.frequency === 'bi-weekly') dayIncrement = 14;
+
       for (let i = 0; i < autoScheduleData.totalDays; i++) {
         const sessionDate = new Date(startDate);
-        sessionDate.setDate(startDate.getDate() + (i * (autoScheduleData.frequency === 'daily' ? 1 : 7)));
-        
+        sessionDate.setDate(startDate.getDate() + (i * dayIncrement));
+
         sessions.push({
           patientName: autoScheduleData.patientName,
           therapyId: autoScheduleData.therapyId,
@@ -114,7 +119,7 @@ export default function Schedule() {
       for (const session of sessions) {
         await api.createBooking(session);
       }
-      
+
       await fetchData();
       setShowAutoSchedule(false);
       setAutoScheduleData({
@@ -137,11 +142,11 @@ export default function Schedule() {
 
   const filteredBookings = bookings.filter(booking => {
     const statusMatch = filterStatus === 'all' || booking.progress === filterStatus;
-    const searchMatch = searchTerm === '' || 
-      booking.patientName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      booking.therapy?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      booking.practitioner?.name.toLowerCase().includes(searchTerm.toLowerCase());
-    
+    const searchMatch = searchTerm === '' ||
+      booking.patientName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      booking.therapy?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      booking.practitioner?.name?.toLowerCase().includes(searchTerm.toLowerCase());
+
     return statusMatch && searchMatch;
   });
 
@@ -153,6 +158,46 @@ export default function Schedule() {
       default: return 'bg-gray-100 text-gray-800 border-gray-200';
     }
   };
+
+  const combineDateTime = (date: string, time: string) => {
+    return new Date(`${date}T${time}:00`);
+  };
+
+  const startOfWeek = (d = new Date()) => {
+    const date = new Date(d);
+    const day = (date.getDay() + 6) % 7; // Monday=0
+    date.setDate(date.getDate() - day);
+    date.setHours(0, 0, 0, 0);
+    return date;
+  };
+
+  const weekDays = (() => {
+    const start = startOfWeek(calendarDate);
+    return Array.from({ length: 7 }).map((_, i) => {
+      const d = new Date(start);
+      d.setDate(start.getDate() + i);
+      return d;
+    });
+  })();
+
+  const startOfMonth = (d = new Date()) => {
+    const date = new Date(d.getFullYear(), d.getMonth(), 1);
+    return date;
+  };
+
+  const getMonthMatrix = (d = new Date()) => {
+    const first = startOfMonth(d);
+    const firstWeekStart = startOfWeek(first);
+    return Array.from({ length: 6 }).map((_, week) =>
+      Array.from({ length: 7 }).map((__, day) => {
+        const cell = new Date(firstWeekStart);
+        cell.setDate(firstWeekStart.getDate() + week * 7 + day);
+        return cell;
+      })
+    );
+  };
+
+  const isSameDay = (a: Date, b: Date) => a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
 
   if (loading) {
     return (
@@ -245,138 +290,285 @@ export default function Schedule() {
         </div>
       </div>
 
-      {/* Available Therapies */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-        <h2 className="text-xl font-semibold text-gray-900 mb-6">Available Therapies</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {therapies.map((therapy) => (
-            <div key={therapy.id} className="border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow duration-200">
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">{therapy.name}</h3>
-              <p className="text-gray-600 mb-4">{therapy.description}</p>
-              <div className="space-y-2 mb-4">
-                <div className="flex items-center text-sm text-gray-500">
-                  <Clock className="h-4 w-4 mr-2" />
-                  <span>{therapy.duration}</span>
-                </div>
-                <div className="flex items-center text-sm text-gray-500">
-                  <span className="font-medium">₹{therapy.price}</span>
-                </div>
-              </div>
-              <div className="mb-4">
-                <p className="text-sm font-medium text-gray-700 mb-1">Benefits:</p>
-                <ul className="text-sm text-gray-600 space-y-1">
-                  {therapy.benefits.slice(0, 2).map((benefit, index) => (
-                    <li key={index} className="flex items-center">
-                      <CheckCircle className="h-3 w-3 text-emerald-500 mr-2 flex-shrink-0" />
-                      {benefit}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              <button
-                onClick={() => {
-                  setSelectedTherapy(therapy);
-                  setFormData({ ...formData, therapyId: therapy.id });
-                  setShowBookingForm(true);
-                }}
-                className="w-full bg-emerald-50 hover:bg-emerald-100 text-emerald-700 py-2 px-4 rounded-lg transition-colors duration-200"
-              >
-                Book Now
-              </button>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Current Bookings */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-semibold text-gray-900">Current Bookings</h2>
-          <div className="flex items-center space-x-2 text-sm text-gray-500">
-            <span>Showing {filteredBookings.length} of {bookings.length} bookings</span>
-          </div>
-        </div>
-        {filteredBookings.length === 0 ? (
-          <div className="text-center py-12">
-            <Calendar className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-            <p className="text-gray-500">No bookings found matching your criteria</p>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {filteredBookings.map((booking) => (
-              <div key={booking.id} className="border border-gray-200 rounded-lg p-6">
-                <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
-                  <div className="flex-1">
-                    <div className="flex items-center space-x-4 mb-3">
-                      <h3 className="text-lg font-semibold text-gray-900">{booking.therapy?.name}</h3>
-                      <span className={`px-3 py-1 text-xs font-medium rounded-full border ${getStatusColor(booking.progress)}`}>
-                        {booking.progress.replace('-', ' ').toUpperCase()}
-                      </span>
-                    </div>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-600">
-                      <div className="flex items-center">
-                        <User className="h-4 w-4 mr-2" />
-                        <span>{booking.patientName}</span>
-                      </div>
-                      <div className="flex items-center">
-                        <Calendar className="h-4 w-4 mr-2" />
-                        <span>{new Date(booking.date).toLocaleDateString()}</span>
-                      </div>
-                      <div className="flex items-center">
-                        <Clock className="h-4 w-4 mr-2" />
-                        <span>{booking.time}</span>
-                      </div>
-                    </div>
-
-                    <div className="mt-4">
-                      <div className="flex justify-between text-sm text-gray-600 mb-2">
-                        <span>Progress: Day {booking.day} of {booking.totalDays}</span>
-                        <span>{Math.round((booking.day / booking.totalDays) * 100)}%</span>
-                      </div>
-                      <div className="w-full bg-gray-200 rounded-full h-2">
-                        <div 
-                          className="bg-emerald-600 h-2 rounded-full transition-all duration-300"
-                          style={{ width: `${(booking.day / booking.totalDays) * 100}%` }}
-                        ></div>
-                      </div>
-                    </div>
+      {/* Available Therapies (Grid view only) */}
+      {viewMode === 'grid' && (
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <h2 className="text-xl font-semibold text-gray-900 mb-6">Available Therapies</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {therapies.map((therapy) => (
+              <div key={therapy.id} className="border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow duration-200">
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">{therapy.name}</h3>
+                <p className="text-gray-600 mb-4">{therapy.description}</p>
+                <div className="space-y-2 mb-4">
+                  <div className="flex items-center text-sm text-gray-500">
+                    <Clock className="h-4 w-4 mr-2" />
+                    <span>{therapy.duration}</span>
                   </div>
-
-                  {booking.progress !== 'completed' && (
-                    <div className="flex space-x-2">
-                      {booking.progress === 'scheduled' && (
-                        <button
-                          onClick={() => updateProgress(booking.id, 'in-progress', 1)}
-                          className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm transition-colors duration-200"
-                        >
-                          Start Session
-                        </button>
-                      )}
-                      {booking.progress === 'in-progress' && booking.day < booking.totalDays && (
-                        <button
-                          onClick={() => updateProgress(booking.id, 'in-progress', booking.day + 1)}
-                          className="bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 rounded-lg text-sm transition-colors duration-200"
-                        >
-                          Complete Day {booking.day + 1}
-                        </button>
-                      )}
-                      {booking.progress === 'in-progress' && booking.day >= booking.totalDays && (
-                        <button
-                          onClick={() => updateProgress(booking.id, 'completed', booking.totalDays)}
-                          className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg text-sm transition-colors duration-200"
-                        >
-                          Mark Complete
-                        </button>
-                      )}
-                    </div>
-                  )}
+                  <div className="flex items-center text-sm text-gray-500">
+                    <span className="font-medium">₹{therapy.price}</span>
+                  </div>
                 </div>
+                <div className="mb-4">
+                  <p className="text-sm font-medium text-gray-700 mb-1">Benefits:</p>
+                  <ul className="text-sm text-gray-600 space-y-1">
+                    {therapy.benefits.slice(0, 2).map((benefit, index) => (
+                      <li key={index} className="flex items-center">
+                        <CheckCircle className="h-3 w-3 text-emerald-500 mr-2 flex-shrink-0" />
+                        {benefit}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <button
+                  onClick={() => {
+                    setFormData({ ...formData, therapyId: therapy.id });
+                    setShowBookingForm(true);
+                  }}
+                  className="w-full bg-emerald-50 hover:bg-emerald-100 text-emerald-700 py-2 px-4 rounded-lg transition-colors duration-200"
+                >
+                  Book Now
+                </button>
               </div>
             ))}
           </div>
-        )}
-      </div>
+        </div>
+      )}
+
+      {/* Current Bookings / Calendar / Timeline */}
+      {viewMode === 'grid' && (
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-xl font-semibold text-gray-900">Current Bookings</h2>
+            <div className="flex items-center space-x-2 text-sm text-gray-500">
+              <span>Showing {filteredBookings.length} of {bookings.length} bookings</span>
+            </div>
+          </div>
+          {filteredBookings.length === 0 ? (
+            <div className="text-center py-12">
+              <Calendar className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+              <p className="text-gray-500">No bookings found matching your criteria</p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {filteredBookings.map((booking) => (
+                <div key={booking.id} className="border border-gray-200 rounded-lg p-6">
+                  <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
+                    <div className="flex-1">
+                      <div className="flex items-center space-x-4 mb-3">
+                        <h3 className="text-lg font-semibold text-gray-900">{booking.therapy?.name}</h3>
+                        <span className={`px-3 py-1 text-xs font-medium rounded-full border ${getStatusColor(booking.progress)}`}>
+                          {booking.progress.replace('-', ' ').toUpperCase()}
+                        </span>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-600">
+                        <div className="flex items-center">
+                          <User className="h-4 w-4 mr-2" />
+                          <span>{booking.patientName}</span>
+                        </div>
+                        <div className="flex items-center">
+                          <Calendar className="h-4 w-4 mr-2" />
+                          <span>{new Date(booking.date).toLocaleDateString()}</span>
+                        </div>
+                        <div className="flex items-center">
+                          <Clock className="h-4 w-4 mr-2" />
+                          <span>{booking.time}</span>
+                        </div>
+                      </div>
+                      <div className="mt-4">
+                        <div className="flex justify-between text-sm text-gray-600 mb-2">
+                          <span>Progress: Day {booking.day} of {booking.totalDays}</span>
+                          <span>{Math.round((booking.day / booking.totalDays) * 100)}%</span>
+                        </div>
+                        <div className="w-full bg-gray-200 rounded-full h-2">
+                          <div
+                            className="bg-emerald-600 h-2 rounded-full transition-all duration-300"
+                            style={{ width: `${(booking.day / booking.totalDays) * 100}%` }}
+                          ></div>
+                        </div>
+                      </div>
+                    </div>
+                    {booking.progress !== 'completed' && (
+                      <div className="flex space-x-2">
+                        {booking.progress === 'scheduled' && (
+                          <button
+                            onClick={() => updateProgress(booking.id, 'in-progress', 1)}
+                            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm transition-colors duration-200"
+                          >
+                            Start Session
+                          </button>
+                        )}
+                        {booking.progress === 'in-progress' && booking.day < booking.totalDays && (
+                          <button
+                            onClick={() => updateProgress(booking.id, 'in-progress', booking.day + 1)}
+                            className="bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 rounded-lg text-sm transition-colors duration-200"
+                          >
+                            Complete Day {booking.day + 1}
+                          </button>
+                        )}
+                        {booking.progress === 'in-progress' && booking.day >= booking.totalDays && (
+                          <button
+                            onClick={() => updateProgress(booking.id, 'completed', booking.totalDays)}
+                            className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg text-sm transition-colors duration-200"
+                          >
+                            Mark Complete
+                          </button>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {viewMode === 'calendar' && (
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-semibold text-gray-900">Calendar</h2>
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={() => setCalendarDate(new Date(calendarDate.getFullYear(), calendarDate.getMonth() - 1, 1))}
+                className="px-2 py-1 text-sm rounded border border-gray-200 hover:bg-gray-50"
+              >
+                ◀
+              </button>
+              <div className="text-sm font-medium text-gray-700 w-36 text-center">
+                {calendarDate.toLocaleString(undefined, { month: 'long', year: 'numeric' })}
+              </div>
+              <button
+                onClick={() => setCalendarDate(new Date(calendarDate.getFullYear(), calendarDate.getMonth() + 1, 1))}
+                className="px-2 py-1 text-sm rounded border border-gray-200 hover:bg-gray-50"
+              >
+                ▶
+              </button>
+              <button
+                onClick={() => setCalendarDate(new Date())}
+                className="ml-2 px-3 py-1 text-xs rounded bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100"
+              >
+                Today
+              </button>
+            </div>
+          </div>
+
+          {/* Month Grid */}
+          <div className="grid grid-cols-7 gap-2 mb-6">
+            {['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].map((lbl) => (
+              <div key={lbl} className="text-xs font-semibold text-gray-600 text-center py-1">{lbl}</div>
+            ))}
+          </div>
+          <div className="grid grid-cols-7 gap-2">
+            {getMonthMatrix(calendarDate).map((week, wi) => (
+              <React.Fragment key={wi}>
+                {week.map((day, di) => {
+                  const dayISO = day.toISOString().slice(0,10);
+                  const dayBookings = filteredBookings.filter(b => b.date === dayISO).sort((a,b)=> combineDateTime(a.date,a.time).getTime()-combineDateTime(b.date,b.time).getTime());
+                  const inCurrentMonth = day.getMonth() === calendarDate.getMonth();
+                  const isToday = isSameDay(day, new Date());
+                  return (
+                    <div key={`${wi}-${di}`} className={`rounded-lg border p-2 min-h-[110px] ${inCurrentMonth ? 'border-gray-200 bg-white' : 'border-gray-100 bg-gray-50 opacity-70'}`}>
+                      <div className="flex items-center justify-between mb-1">
+                        <span className={`text-xs ${inCurrentMonth ? 'text-gray-700' : 'text-gray-500'}`}>{day.getDate()}</span>
+                        {isToday && (<span className="text-[10px] px-1 rounded bg-emerald-100 text-emerald-700">Today</span>)}
+                      </div>
+                      {dayBookings.length === 0 ? (
+                        <div className="text-[11px] text-gray-400">No sessions</div>
+                      ) : (
+                        <div className="space-y-1">
+                          {dayBookings.slice(0,3).map(b => (
+                            <div key={b.id} className="text-[11px] truncate rounded px-2 py-0.5 border border-emerald-200 bg-emerald-50 text-emerald-800">
+                              {b.time} • {b.therapy?.name}
+                            </div>
+                          ))}
+                          {dayBookings.length > 3 && (
+                            <div className="text-[11px] text-gray-500">+{dayBookings.length - 3} more</div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </React.Fragment>
+            ))}
+          </div>
+
+          {/* Week strip (current week) */}
+          <div className="mt-8">
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-md font-semibold text-gray-800">This Week</h3>
+              <span className="text-xs text-gray-500">{weekDays[0].toLocaleDateString()} - {weekDays[6].toLocaleDateString()}</span>
+            </div>
+            <div className="grid grid-cols-7 gap-4">
+            {weekDays.map((day, idx) => {
+              const dayISO = day.toISOString().slice(0,10);
+              const dayBookings = filteredBookings.filter(b => b.date === dayISO).sort((a,b)=> combineDateTime(a.date,a.time).getTime()-combineDateTime(b.date,b.time).getTime());
+              return (
+                <div key={idx} className="border border-gray-200 rounded-lg p-3 min-h-[160px]">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm font-semibold text-gray-800">{day.toLocaleDateString(undefined,{ weekday: 'short'})}</span>
+                    <span className="text-xs text-gray-500">{day.getDate()}</span>
+                  </div>
+                  {dayBookings.length === 0 ? (
+                    <p className="text-xs text-gray-400">No sessions</p>
+                  ) : (
+                    <div className="space-y-2">
+                      {dayBookings.map(b => (
+                        <div key={b.id} className="text-xs border border-emerald-200 bg-emerald-50 text-emerald-800 rounded-md px-2 py-1">
+                          <div className="flex justify-between"><span>{b.time}</span><span className="capitalize">{b.progress.replace('-', ' ')}</span></div>
+                          <div className="truncate font-medium">{b.therapy?.name}</div>
+                          <div className="truncate text-gray-600">{b.patientName}</div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+          </div>
+        </div>
+      )}
+
+      {viewMode === 'timeline' && (
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <h2 className="text-xl font-semibold text-gray-900 mb-6">Timeline</h2>
+          {filteredBookings.length === 0 ? (
+            <div className="text-center py-12">
+              <Calendar className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+              <p className="text-gray-500">No bookings found</p>
+            </div>
+          ) : (
+            <div className="relative">
+              <div className="absolute left-4 top-0 bottom-0 w-px bg-gray-200" />
+              <div className="space-y-6">
+                {filteredBookings
+                  .slice()
+                  .sort((a, b) => combineDateTime(a.date, a.time).getTime() - combineDateTime(b.date, b.time).getTime())
+                  .map((b) => (
+                  <div key={b.id} className="pl-10">
+                    <div className="relative">
+                      <div className="absolute -left-6 top-2 h-3 w-3 rounded-full bg-emerald-500 border-2 border-white shadow" />
+                      <div className="border border-gray-200 rounded-lg p-4">
+                        <div className="flex items-center justify-between">
+                          <div className="font-semibold text-gray-900">{b.therapy?.name}</div>
+                          <div className="text-xs text-gray-600">{new Date(b.date).toLocaleDateString()} • {b.time}</div>
+                        </div>
+                        <div className="mt-1 text-sm text-gray-700">{b.patientName}</div>
+                        <div className="mt-2">
+                          <span className={`px-2 py-1 text-[10px] font-semibold rounded-full border ${getStatusColor(b.progress)}`}>
+                            {b.progress.replace('-', ' ').toUpperCase()}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Booking Form Modal */}
       {showBookingForm && (
@@ -501,7 +693,7 @@ export default function Schedule() {
                 <X className="h-6 w-6" />
               </button>
             </div>
-            
+
             <form onSubmit={handleAutoSchedule} className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
@@ -632,7 +824,7 @@ export default function Schedule() {
                   <div>
                     <h4 className="text-sm font-medium text-blue-900">Auto-Schedule Preview</h4>
                     <p className="text-sm text-blue-700 mt-1">
-                      This will create {autoScheduleData.totalDays} sessions starting from {autoScheduleData.startDate} 
+                      This will create {autoScheduleData.totalDays} sessions starting from {autoScheduleData.startDate}
                       at {autoScheduleData.preferredTime} with {autoScheduleData.frequency} frequency.
                     </p>
                   </div>

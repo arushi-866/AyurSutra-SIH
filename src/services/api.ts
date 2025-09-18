@@ -69,5 +69,39 @@ export const api = {
   getDashboardStats: async () => {
     const response = await fetch(`${API_BASE}/dashboard-stats`);
     return response.json();
+  },
+
+  // Enhanced Notifications
+  sendNotification: async (notificationData: any) => {
+    const response = await fetch(`${API_BASE}/notifications/send`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(notificationData)
+    });
+    return response.json();
+  },
+
+  sendBulkNotifications: async (notifications: any[]) => {
+    const response = await fetch(`${API_BASE}/notifications/bulk`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ notifications })
+    });
+    return response.json();
+  },
+
+  // Patient Management
+  getPatients: async () => {
+    const response = await fetch(`${API_BASE}/patients`);
+    return response.json();
+  },
+
+  createPatient: async (patient: any) => {
+    const response = await fetch(`${API_BASE}/patients`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(patient)
+    });
+    return response.json();
   }
 };

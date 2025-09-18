@@ -11,6 +11,8 @@ A comprehensive web application for managing Panchakarma treatments, patient sch
 - **Patient Feedback & Analytics**: Advanced feedback system with sentiment analysis and effectiveness tracking
 - **Practitioner Management**: Complete practitioner profiles with performance metrics
 - **Patient Management**: Detailed patient profiles with treatment history
+- **Advanced Analytics**: Comprehensive analytics dashboard with therapy effectiveness and business insights
+- **Patient Records Management**: Complete patient information system with medical history and constitution tracking
 
 ### Innovative Features
 - **Visualization Tools**: Interactive charts and progress bars for tracking improvements
@@ -18,6 +20,10 @@ A comprehensive web application for managing Panchakarma treatments, patient sch
 - **Automated Alerts**: Smart notifications for pre/post-procedure care
 - **Progress Milestones**: Achievement tracking and patient motivation
 - **Therapy Effectiveness Analytics**: Data-driven insights into treatment outcomes
+- **Multi-Channel Communication**: Automated SMS, email, and in-app notifications
+- **Ayurvedic Constitution Tracking**: Vata, Pitta, Kapha constitution management
+- **Recovery Metrics Visualization**: Week-by-week improvement tracking
+- **Practitioner Performance Analytics**: Detailed performance metrics and revenue tracking
 
 ## Technology Stack
 
@@ -78,6 +84,8 @@ ayursutra/
 │   │   ├── Schedule.tsx           # Therapy scheduling interface
 │   │   ├── Notifications.tsx      # Notification management
 │   │   ├── Feedback.tsx           # Patient feedback & analytics
+│   │   ├── PatientManagement.tsx # Patient records management
+│   │   ├── Analytics.tsx         # Advanced analytics dashboard
 │   │   └── Layout.tsx             # Main layout component
 │   ├── services/
 │   │   └── api.ts                 # API service layer
@@ -120,6 +128,19 @@ ayursutra/
 - **Effectiveness Tracking**: Therapy effectiveness metrics
 - **Analytics Dashboard**: Advanced analytics and insights
 
+### Patient Management
+- **Complete Patient Profiles**: Detailed patient information with medical history
+- **Constitution Tracking**: Ayurvedic Vata, Pitta, Kapha constitution management
+- **Treatment History**: Complete therapy and session history
+- **Emergency Contacts**: Emergency contact information management
+- **Progress Visualization**: Visual progress tracking for each patient
+
+### Advanced Analytics
+- **Therapy Effectiveness**: Detailed effectiveness metrics for each therapy
+- **Practitioner Performance**: Performance analytics and revenue tracking
+- **Patient Satisfaction**: Comprehensive satisfaction analysis
+- **Recovery Metrics**: Week-by-week improvement tracking
+- **Business Intelligence**: Revenue, booking trends, and growth analytics
 ##  API Endpoints
 
 ### Core Endpoints
@@ -138,6 +159,10 @@ ayursutra/
 - `GET /api/patients/:name/history` - Get patient history
 - `GET /api/practitioners/:id/performance` - Get practitioner performance
 - `GET /api/therapies/:id/effectiveness` - Get therapy effectiveness
+- `GET /api/patients` - Get all patients
+- `POST /api/patients` - Create new patient
+- `POST /api/notifications/send` - Send single notification
+- `POST /api/notifications/bulk` - Send bulk notifications
 
 ##  UI/UX Features
 
@@ -161,6 +186,9 @@ ayursutra/
 - **Rating Distribution**: Visual representation of patient ratings
 - **Therapy Effectiveness**: Charts showing treatment outcomes
 - **Trend Analysis**: Time-based analysis of key metrics
+- **Recovery Metrics**: Week-by-week improvement visualization
+- **Practitioner Performance**: Performance comparison charts
+- **Revenue Analytics**: Business intelligence dashboards
 
 ## Security Features
 

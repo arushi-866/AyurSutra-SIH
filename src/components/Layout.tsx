@@ -7,7 +7,9 @@ import {
   MessageSquare, 
   Leaf, 
   Menu, 
-  X 
+  X,
+  Users,
+  BarChart3
 } from 'lucide-react';
 import { api } from '../services/api';
 
@@ -37,8 +39,10 @@ export default function Layout({ children }: LayoutProps) {
     { name: 'Home', href: '/', icon: Home },
     { name: 'Dashboard', href: '/dashboard', icon: Home },
     { name: 'Schedule', href: '/schedule', icon: Calendar },
+    { name: 'Patients', href: '/patients', icon: Users },
     { name: 'Notifications', href: '/notifications', icon: Bell, badge: unreadNotifications },
     { name: 'Feedback', href: '/feedback', icon: MessageSquare },
+    { name: 'Analytics', href: '/analytics', icon: BarChart3 },
   ];
 
   return (

@@ -11,7 +11,7 @@ import {
   AreaChart,
   Area
 } from 'recharts';
-import { Calendar, Users, Activity, Bell, TrendingUp, Clock, Heart, Target, Award, Zap } from 'lucide-react';
+import { Calendar, Users, Activity, Bell, TrendingUp, Clock, Heart, Target, Award, Zap, BarChart3 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { api } from '../services/api';
 import type { DashboardStats, Booking } from '../types';
@@ -493,10 +493,14 @@ export default function Dashboard() {
       {/* Quick Actions */}
       <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
         <h3 className="text-lg font-semibold text-gray-800 mb-4">Quick Actions</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
           <Link to="/schedule" className="flex items-center justify-center p-4 bg-emerald-50 hover:bg-emerald-100 rounded-lg border border-emerald-200 transition-colors duration-200">
             <Calendar className="h-5 w-5 text-emerald-600 mr-2" />
             <span className="text-emerald-700 font-medium">Schedule Therapy</span>
+          </Link>
+          <Link to="/patients" className="flex items-center justify-center p-4 bg-blue-50 hover:bg-blue-100 rounded-lg border border-blue-200 transition-colors duration-200">
+            <Users className="h-5 w-5 text-blue-600 mr-2" />
+            <span className="text-blue-700 font-medium">Manage Patients</span>
           </Link>
           <Link to="/notifications" className="flex items-center justify-center p-4 bg-teal-50 hover:bg-teal-100 rounded-lg border border-teal-200 transition-colors duration-200">
             <Bell className="h-5 w-5 text-teal-600 mr-2" />
@@ -505,6 +509,10 @@ export default function Dashboard() {
           <Link to="/feedback" className="flex items-center justify-center p-4 bg-amber-50 hover:bg-amber-100 rounded-lg border border-amber-200 transition-colors duration-200">
             <Activity className="h-5 w-5 text-amber-600 mr-2" />
             <span className="text-amber-700 font-medium">Track Progress</span>
+          </Link>
+          <Link to="/analytics" className="flex items-center justify-center p-4 bg-purple-50 hover:bg-purple-100 rounded-lg border border-purple-200 transition-colors duration-200">
+            <BarChart3 className="h-5 w-5 text-purple-600 mr-2" />
+            <span className="text-purple-700 font-medium">View Analytics</span>
           </Link>
         </div>
       </div>

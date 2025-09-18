@@ -554,6 +554,93 @@ app.get('/api/therapies/:id/effectiveness', (req, res) => {
   res.json(effectiveness);
 });
 
+// Enhanced notification system with SMS and email simulation
+app.post('/api/notifications/send', (req, res) => {
+  const { patientName, therapyName, type, message, channels, priority } = req.body;
+  
+  const newNotification = {
+    id: notifications.length + 1,
+    bookingId: 0,
+    type: type || 'alert',
+    title: `${type.charAt(0).toUpperCase() + type.slice(1)} Notification`,
+    message,
+    read: false,
+    timestamp: new Date().toISOString(),
+    priority: priority || 'medium',
+    channels: channels || ['in-app'],
+    patientName,
+    therapyName
+  };
+  
+  notifications.push(newNotification);
+  
+  // Simulate sending notifications through different channels
+  const results = {
+    'in-app': true,
+    'email': channels.includes('email') ? true : false,
+    'sms': channels.includes('sms') ? true : false
+  };
+  
+  res.json({ notification: newNotification, deliveryResults: results });
+});
+
+// Bulk notification sending
+app.post('/api/notifications/bulk', (req, res) => {
+  const { notifications: notificationList } = req.body;
+  const createdNotifications = [];
+  
+  notificationList.forEach(notif => {
+    const newNotification = {
+      id: notifications.length + 1,
+      ...notif,
+      read: false,
+      timestamp: new Date().toISOString()
+    };
+    notifications.push(newNotification);
+    createdNotifications.push(newNotification);
+  });
+  
+  res.json({ created: createdNotifications.length, notifications: createdNotifications });
+});
+
+// Patient management endpoints
+app.get('/api/patients', (req, res) => {
+  // Mock patient data - in real app this would come from database
+  const patients = [
+    {
+      id: 1,
+      name: 'John Doe',
+      age: 45,
+      phone: '+91-9876543210',
+      email: 'john.doe@email.com',
+      address: '123 Main St, Mumbai, Maharashtra',
+      medicalHistory: 'Hypertension, Diabetes Type 2',
+      constitution: 'Vata',
+      allergies: 'Nuts, Shellfish',
+      currentMedications: 'Metformin, Lisinopril',
+      emergencyContact: '+91-9876543211',
+      joinDate: '2024-01-15',
+      totalSessions: 15,
+      completedSessions: 12,
+      lastVisit: '2025-01-10',
+      nextAppointment: '2025-01-20'
+    }
+  ];
+  res.json(patients);
+});
+
+app.post('/api/patients', (req, res) => {
+  const newPatient = {
+    id: Date.now(),
+    ...req.body,
+    joinDate: new Date().toISOString().split('T')[0],
+    totalSessions: 0,
+    completedSessions: 0,
+    lastVisit: '',
+    nextAppointment: ''
+  };
+  res.json(newPatient);
+});
 app.listen(PORT, () => {
   console.log(`AyurSutra backend running on port ${PORT}`);
 });

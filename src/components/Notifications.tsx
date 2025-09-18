@@ -292,14 +292,18 @@ export default function Notifications() {
                           <Clock className="h-3 w-3 mr-1" />
                           <span>{new Date(notification.timestamp).toLocaleString()}</span>
                         </div>
-                        <div className="flex items-center">
-                          <span className="font-medium">Patient:</span>
-                          <span className="ml-1">{notification.patientName}</span>
-                        </div>
-                        <div className="flex items-center">
-                          <span className="font-medium">Therapy:</span>
-                          <span className="ml-1">{notification.therapyName}</span>
-                        </div>
+                        {notification.patientName && (
+                          <div className="flex items-center">
+                            <span className="font-medium">Patient:</span>
+                            <span className="ml-1">{notification.patientName}</span>
+                          </div>
+                        )}
+                        {notification.therapyName && (
+                          <div className="flex items-center">
+                            <span className="font-medium">Therapy:</span>
+                            <span className="ml-1">{notification.therapyName}</span>
+                          </div>
+                        )}
                       </div>
 
                       <div className="flex items-center space-x-1">
